@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kestrel Returns Risk</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #f9fafb;
+      --surface: #ffffff;
+      --border: #e5e7eb;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --primary: #0f172a;
+      --primary-hover: #334155;
+      --focus-ring: rgba(15, 23, 42, 0.2);
+      --danger-bg: #fef2f2;
+      --danger-text: #991b1b;
+      --danger-border: #fca5a5;
+      --success-bg: #f0fdf4;
+      --success-text: #166534;
+      --success-border: #86efac;
+      --warning-bg: #fffbeb;
+      --warning-text: #92400e;
+      --warning-border: #fde68a;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    header p {
+      margin: 0.25rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    @media(max-width: 768px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 0.375rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-main);
+      background: var(--surface);
+      box-sizing: border-box;
+      transition: all 0.15s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    input::placeholder { color: #9ca3af; }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    button {
+      flex: 1;
+      padding: 0.625rem 1rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    button.secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+
+    button.secondary:hover {
+      background: var(--bg);
+    }
+
+    /* Output styling */
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      padding: 2rem 0;
+    }
+
+    .result-score {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .result-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+    }
+
+    .pill.call { background: var(--warning-bg); color: var(--warning-text); border: 1px solid var(--warning-border); }
+    .pill.ok { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+
+    .err {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      padding: 0.875rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--danger-border);
+      font-size: 0.875rem;
+    }
+
+    .stats-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      font-size: 0.875rem;
+    }
+
+    .stats-box strong { color: var(--text-main); }
+
+    .reasons-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .reasons-list li {
+      display: flex;
+      align-items: flex-start;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .reasons-list li:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .reason-icon {
+      margin-right: 0.75rem;
+      flex-shrink: 0;
+      margin-top: 0.125rem;
+    }
+
+    .up .reason-icon { color: var(--danger-text); }
+    .down .reason-icon { color: var(--success-text); }
+
+    .reason-text { flex: 1; }
+    .reason-text small { display: block; color: var(--text-muted); margin-top: 0.125rem; }
+
+    .notes {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      border-left: 2px solid var(--border);
+      padding-left: 0.75rem;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kestrel Returns Risk</h1>
+    <p>Score an order before dispatch. Evaluates risk and suggests optimal action.</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="card-header">
+        <h2>Order Details</h2>
+      </div>
+      <form id="f" onsubmit="return false">
+        <div class="form-group">
+          <label for="order_id">Order ID (optional)</label>
+          <input id="order_id" placeholder="KO2610504">
+        </div>
+        <div class="form-group">
+          <label for="customer_id">Customer ID</label>
+          <input id="customer_id" placeholder="KC104433">
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="sku">Product</label>
+            <select id="sku"></select>
+          </div>
+          <div>
+            <label for="qty">Quantity</label>
+            <input id="qty" type="number" value="1" min="1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="sales_channel">Channel</label>
+            <select id="sales_channel">
+              <option>app</option>
+              <option>web</option>
+              <option>marketplace</option>
+              <option>partner_outlet</option>
+            </select>
+          </div>
+          <div>
+            <label for="payment_mode">Payment</label>
+            <select id="payment_mode">
+              <option>prepaid_upi</option>
+              <option>prepaid_card</option>
+              <option>cod</option>
+              <option>emi</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="order_value_inr">Order value (₹)</label>
+            <input id="order_value_inr" type="number" value="4679">
+          </div>
+          <div>
+            <label for="discount_pct">Discount %</label>
+            <input id="discount_pct" type="number" value="10">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="promised_delivery_days">Promised days</label>
+            <input id="promised_delivery_days" type="number" value="5">
+          </div>
+          <div>
+            <label for="is_gift">Gift?</label>
+            <select id="is_gift">
+              <option>N</option>
+              <option>Y</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label for="customer_prior_orders">Earlier orders</label>
+            <input id="customer_prior_orders" type="number" value="2">
+          </div>
+          <div>
+            <label for="customer_prior_returns">Earlier returns</label>
+            <input id="customer_prior_returns" type="number" value="0">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="delivery_pincode">Delivery pincode (000000 = none)</label>
+          <input id="delivery_pincode" value="440365">
+        </div>
+
+        <div class="button-group">
+          <button class="secondary" onclick="demo()">Load Risky Example</button>
+          <button class="primary" onclick="go()">Score Order</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Risk Assessment</h2>
+      </div>
+      <div id="out">
+        <div class="empty-state">
+          <svg style="width: 48px; height: 48px; color: var(--border); margin: 0 auto 1rem; display: block;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Fill out the order details and press "Score Order" to see the return risk prediction.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SK=["KH-AF-01","KH-AF-02","KH-AF-03","KH-MG-01","KH-MG-02","KH-MG-03","KH-WP-01","KH-WP-02","KH-WP-03","KH-RV-01","KH-RV-02","KH-RV-03","KH-IC-01","KH-IC-02","KH-IC-03","KH-CF-01","KH-CF-02","KH-CF-03","KH-RH-01","KH-RH-02","KH-RH-03"];
+    document.getElementById('sku').innerHTML=SK.map(s=>`<option>${s}</option>`).join("");
+    const NUM=["qty","order_value_inr","discount_pct","promised_delivery_days","customer_prior_orders","customer_prior_returns"];
+
+    function demo(){
+      document.getElementById('sku').value="KH-RH-01";
+      document.getElementById('payment_mode').value="cod";
+      document.getElementById('sales_channel').value="marketplace";
+      document.getElementById('order_value_inr').value=1999;
+      document.getElementById('discount_pct').value=25;
+      document.getElementById('promised_delivery_days').value=9;
+      document.getElementById('customer_prior_orders').value=4;
+      document.getElementById('customer_prior_returns').value=2;
+      document.getElementById('is_gift').value="Y";
+      go();
+    }
+
+    async function go(){
+      const rec={};
+      for(const el of document.querySelectorAll("#f input, #f select")){
+        if(el.value!=="") rec[el.id] = NUM.includes(el.id) ? Number(el.value) : el.value;
+      }
+      rec.delivery_pincode = Number(rec.delivery_pincode||0);
+
+      const o = document.getElementById("out");
+      o.innerHTML = `<div class="empty-state">
+        <div style="width: 24px; height: 24px; border: 2.5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem;"></div>
+        Analyzing risk factors...
+      </div>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>`;
+
+      try {
+        const r = await fetch("/predict", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify(rec)
+        });
+        const d = await r.json();
+
+        if(!r.ok) {
+          o.innerHTML = `<div class="err"><strong>Error:</strong> ${d.error}</div>`;
+          return;
+        }
+
+        const call = d.action.startsWith("CALL");
+
+        const upIcon = `<svg class="reason-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17V7h-2v10h2zm-1-10L7.5 11.5l1.4 1.4L12 9.8l3.1 3.1 1.4-1.4L12 7z"/></svg>`;
+        const downIcon = `<svg class="reason-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 7v10h2V7h-2zm1 10l4.5-4.5-1.4-1.4L12 14.2l-3.1-3.1-1.4 1.4L12 17z"/></svg>`;
+
+        o.innerHTML = `
+          <div>
+            <div class="result-score">${(d.return_probability*100).toFixed(1)}%</div>
+            <div class="result-label">Probability of return</div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <span class="pill ${call ? "call" : "ok"}">
+                ${call ? `
+                  <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                ` : `
+                  <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                `}
+                ${d.action}
+              </span>
+            </div>
+
+            <div class="stats-box">
+              Expected net gain from a ₹45 call: <strong>₹${d.expected_net_gain_rs_if_called}</strong><br>
+              <span style="color: var(--text-muted); font-size: 0.8em; display: block; margin-top: 4px;">A call pays off when risk exceeds ${(d.call_threshold*100).toFixed(1)}%.</span>
+            </div>
+
+            <h3 style="font-size: 0.875rem; font-weight: 600; margin: 0 0 1rem; color: var(--text-main);">Key Risk Factors</h3>
+            <ul class="reasons-list">
+              ${d.reasons.map(x => `
+                <li class="${x.effect === "raises risk" ? "up" : "down"}">
+                  ${x.effect === "raises risk" ? upIcon : downIcon}
+                  <div class="reason-text">
+                    ${x.text}
+                    <small>${x.effect} (impact: ${x.strength})</small>
+                  </div>
+                </li>
+              `).join("")}
+            </ul>
+
+            ${d.notes.length ? `
+              <div class="notes">
+                ${d.notes.map(n => `<div style="margin-bottom: 4px;">${n}</div>`).join("")}
+              </div>
+            ` : ""}
+
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);">
+              ${d.how_to_read}
+            </div>
+          </div>
+        `;
+      } catch(e) {
+        o.innerHTML = `<div class="err"><strong>Connection Error:</strong> Service not reachable. Ensure the server is running.</div>`;
+      }
+    }
+  </script>
+</body>
+</html>
+
