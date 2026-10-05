@@ -3,6 +3,19 @@
 Scores an order **at dispatch** with the probability it will be returned, says whether a
 Rs 45 confirmation call pays for itself, and shows the reasons. No paid API, no API key, no network.
 
+## Data Setup & Outputs
+Before running the training script, please ensure the following files are placed in the `data/` directory at the root of the project:
+- `customers.csv`
+- `products.csv`
+- `train.csv`
+- `test_unlabelled.csv`
+- `sample_submission.csv`
+
+When the training script is run, it will generate the predictive model and its outputs in the following locations:
+- `out/predictions.csv` (Predictions for the unlabelled test data)
+- `out/validation.json` (Validation metrics and policy simulation results)
+- `model/model.pkl` (The serialized trained model)
+
 ## Run (clean machine, Python 3.10+)
 ```
 pip install -r requirements.txt
